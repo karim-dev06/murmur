@@ -7,6 +7,8 @@ enum Pref {
     static let vocabulary = "vocabulary"
     static let sounds = "sounds"
     static let shortcuts = "shortcuts"          // JSON list of Shortcut
+    static let learn = "learn"                  // learn from the person's corrections
+    static let learned = "learned"              // JSON list of LearnedFix
 
     static var d: UserDefaults { .standard }
 
@@ -18,6 +20,8 @@ enum Pref {
             vocabulary: "",
             sounds: false,
             shortcuts: "[]",
+            learn: true,
+            learned: "[]",
         ])
     }
 

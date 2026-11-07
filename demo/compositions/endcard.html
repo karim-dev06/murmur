@@ -1,0 +1,88 @@
+<template>
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+      font-family: "Inter";
+    }
+    #end-ground {
+      position: absolute;
+      inset: 0;
+      background: #f4f0ea;
+    }
+    #end-flood {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(900px 600px at 50% 40%, #2a1a12 0%, #141210 70%);
+    }
+    #end-stack {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 26px;
+      color: #fff;
+    }
+    #end-lockup {
+      display: flex;
+      align-items: center;
+      gap: 34px;
+    }
+    #end-icon {
+      width: 200px;
+      height: 200px;
+    }
+    #end-name {
+      font-size: 150px;
+      font-weight: 800;
+      letter-spacing: -0.045em;
+    }
+    #end-line {
+      font-size: 46px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.82);
+    }
+    #end-facts {
+      font-size: 30px;
+      color: rgba(255, 255, 255, 0.55);
+      letter-spacing: 0.01em;
+    }
+    #end-cta {
+      margin-top: 22px;
+      padding: 24px 48px;
+      border-radius: 999px;
+      background: #f0581f;
+      font-size: 36px;
+      font-weight: 700;
+      color: #fff;
+      box-shadow: 0 18px 40px rgba(240, 88, 31, 0.35);
+    }
+  </style>
+
+  <div id="root" data-composition-id="endcard" data-width="1920" data-height="1080">
+    <div id="end-ground"></div>
+    <div id="end-flood"></div>
+    <div id="end-stack">
+      <div id="end-lockup">
+        <img id="end-icon" src="assets/icon.png" alt="Murmur icon" />
+        <div id="end-name">Murmur</div>
+      </div>
+      <div id="end-line">Private dictation for your Mac</div>
+      <div id="end-facts">Free · Runs on your Mac · No account · Works offline</div>
+      <div id="end-cta">Download for Mac</div>
+    </div>
+  </div>
+
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    tl.fromTo("#end-flood", { opacity: 0 }, { opacity: 1, duration: 0.4, ease: "power2.inOut" }, 0);
+    tl.fromTo("#end-icon", { opacity: 0, scale: 0.4, rotation: -12 }, { opacity: 1, scale: 1, rotation: 0, duration: 0.6, ease: "back.out(1.4)" }, 0.3);
+    tl.fromTo("#end-name", { opacity: 0, clipPath: "inset(0 100% 0 0)" }, { opacity: 1, clipPath: "inset(0 0% 0 0)", duration: 0.45, ease: "power3.out" }, 0.6);
+    tl.fromTo("#end-line", { opacity: 0, filter: "blur(8px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power4.out" }, 1.0);
+    tl.fromTo("#end-facts", { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "power2.out" }, 1.25);
+    tl.fromTo("#end-cta", { opacity: 0, y: 20, scale: 0.92 }, { opacity: 1, y: 0, scale: 1, duration: 0.45, ease: "expo.out" }, 1.45);
+    window.__timelines["endcard"] = tl;
+  </script>
+</template>

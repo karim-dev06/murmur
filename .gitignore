@@ -4,3 +4,6 @@ build.noindex/
 .swiftpm/
 .signing-identity
 dist/
+demo/renders/
+demo/.hyperframes/
+demo/node_modules/

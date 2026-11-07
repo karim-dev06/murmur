@@ -17,6 +17,7 @@ final class Controller {
     private let cleaner = Cleaner()
     private let paster = Paster()
     private let hotkeys = HotkeyMonitor()
+    private let watcher = CorrectionWatcher()
     private var engine: AppleSpeechEngine?
     private var engineLocale = ""
     /// What the talk key is doing during a recording.
@@ -29,6 +30,7 @@ final class Controller {
     private var tapTimer: Timer?
     private var maxLengthTimer: Timer?
     private var live: LiveTranscription?
+    private var tidier: LiveTidier?
     private var accessibilityTimer: Timer?
 
     var hotkeysActive: Bool { hotkeys.isRunning }
@@ -49,6 +51,10 @@ final class Controller {
         hotkeys.isRecording = { [weak self] in self?.phase == .recording }
         hotkeys.onEscape = { [weak self] in self?.cancelRecording(message: "Cancelled") }
         hotkeys.onPasteLast = { [weak self] in self?.pasteLast() }
+        watcher.onLearned = { [weak self] fixes in
+            guard let first = fixes.first else { return }
+            self?.hud.flash("Learned: \(first.heard) → \(first.correct)", seconds: 2.5)
+        }
         applyTrigger()
         startHotkeys(prompt: true)
         reloadEngineIfNeeded()
@@ -65,6 +71,7 @@ final class Controller {
     }
 
     func shutdown() {
+        watcher.finish()
         _ = recorder.stop()
     }
 
@@ -127,10 +134,14 @@ final class Controller {
             return
         }
 
+        watcher.finish()
         hud.model.liveText = ""
-        let live = engine?.startLive(vocabulary: Pref.vocabularyList) { [weak self] text in
+        let tidier = Pref.d.bool(forKey: Pref.cleanup) ? LiveTidier(cleaner: cleaner, vocabulary: Pref.vocabularyList) : nil
+        let live = engine?.startLive(vocabulary: Pref.vocabularyList, onText: { [weak self] text in
             DispatchQueue.main.async { self?.hud.model.liveText = text }
-        }
+        }, onSettled: { piece in
+            DispatchQueue.main.async { tidier?.add(piece) }
+        })
         recorder.onChunk = { chunk in live?.append(chunk) }
         do {
             try recorder.start()
@@ -140,6 +151,7 @@ final class Controller {
             return
         }
         self.live = live
+        self.tidier = tidier
         keyMode = .pressed
         phase = .recording
         if Pref.d.bool(forKey: Pref.cleanup) { cleaner.prewarm(vocabulary: Pref.vocabularyList) }
@@ -172,6 +184,7 @@ final class Controller {
         _ = recorder.stop()
         live?.cancel()
         live = nil
+        tidier = nil
         phase = .idle
         if let message { hud.flash(message, seconds: 1.2) } else { hud.hide() }
     }
@@ -181,23 +194,25 @@ final class Controller {
         stopTimers()
         let samples = recorder.stop()
         let live = self.live
+        let tidier = self.tidier
         self.live = nil
+        self.tidier = nil
         guard AudioCheck.hasSpeech(samples) else {
             live?.cancel()
             phase = .idle
             hud.flash("Didn't hear anything", seconds: 1.4)
             return
         }
-        process(samples, live: live)
+        process(samples, live: live, tidier: tidier)
     }
 
     func retryLast() {
         guard phase == .idle, let samples = lastFailedSamples else { return }
         hud.model.liveText = ""
-        process(samples, live: nil)
+        process(samples, live: nil, tidier: nil)
     }
 
-    private func process(_ samples: [Float], live: LiveTranscription?) {
+    private func process(_ samples: [Float], live: LiveTranscription?, tidier: LiveTidier?) {
         guard let engine else { return }
         phase = .working
         hud.show(.working)
@@ -210,14 +225,24 @@ final class Controller {
             do {
                 // The live text is ready almost at once. If it failed, transcribe the recording instead.
                 var heard = (try? await live?.finish()) ?? ""
+                let heardLive = !heard.isEmpty
                 if heard.isEmpty { heard = try await engine.transcribe(samples, vocabulary: vocabulary) }
                 let raw = TextFilter.tidy(heard)
                 lastFailedSamples = nil
                 guard !raw.isEmpty else { return finish(flash: "Didn't catch that") }
-                let text = await cleaner.polish(raw, cleanup: cleanup, vocabulary: vocabulary, shortcuts: shortcuts)
+                // A long dictation was tidied piece by piece while it was spoken. Short ones are
+                // tidied whole, which keeps self-corrections and lists that span sentences.
+                var pretidied: String?
+                if heardLive, let tidier, Cleaner.words(raw).count > LiveTidier.longDictationWords {
+                    pretidied = try? await withTimeout(seconds: 10) { await tidier.finish() }
+                }
+                let text = await cleaner.polish(raw, cleanup: cleanup, vocabulary: vocabulary, shortcuts: shortcuts, pretidied: pretidied)
                 history.add(Entry(date: Date(), raw: raw, text: text, app: app))
                 let result = await paster.insert(text)
                 finish(flash: result == .pasted ? nil : "Copied. Press ⌘V if it didn't appear.")
+                if result == .pasted, Pref.d.bool(forKey: Pref.learn), let target = paster.lastTarget {
+                    watcher.watch(target, typed: text)
+                }
             } catch {
                 lastFailedSamples = samples
                 engineStatus = "Last try failed: \(error.localizedDescription)"

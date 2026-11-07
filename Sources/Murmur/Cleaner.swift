@@ -69,13 +69,22 @@ final class Cleaner {
     }
 
     /// Everything between "heard" and "typed": voice shortcuts, line breaks and tidy-up.
-    func polish(_ raw: String, cleanup: Bool, vocabulary: [String], shortcuts: [Shortcut]) async -> String {
+    /// `pretidied` is the same words already tidied piece by piece while the person talked.
+    func polish(_ raw: String, cleanup: Bool, vocabulary: [String], shortcuts: [Shortcut], pretidied: String? = nil) async -> String {
         if let shortcut = Shortcuts.exactMatch(raw, in: shortcuts) { return shortcut.text }
         let used = Shortcuts.said(in: raw, from: shortcuts)
-        var tidied = cleanup ? await clean(raw, vocabulary: vocabulary, keep: used.map(\.phrase)) : TextFilter.applyVoiceCommands(raw)
+        var tidied: String
+        if !cleanup {
+            tidied = TextFilter.applyVoiceCommands(raw)
+        } else if let pretidied {
+            tidied = pretidied
+        } else {
+            tidied = await clean(raw, vocabulary: vocabulary, keep: used.map(\.phrase))
+        }
         // If tidy-up mangled a shortcut phrase, the shortcut matters more than the tidy-up.
         if Shortcuts.said(in: tidied, from: used).count < used.count { tidied = TextFilter.applyVoiceCommands(raw) }
-        return Shortcuts.expand(TextFilter.numberOrdinalLines(tidied), with: shortcuts)
+        let fixed = Learned.apply(TextFilter.fixTechWords(tidied))
+        return Shortcuts.expand(TextFilter.numberOrdinalLines(fixed), with: shortcuts)
     }
 
     /// Spoken "new line" / "new paragraph" become breaks first, then each piece is tidied on its own,
@@ -139,6 +148,9 @@ final class Cleaner {
     /// Guards against the model answering, reordering or rewriting instead of tidying.
     /// Tidying mostly deletes, so the output should read as the input with words taken out.
     static func isFaithful(_ cleaned: String, to raw: String) -> Bool {
+        // A list needs three items. Fewer means the model mistook something like "1st" for numbering.
+        let listLines = cleaned.split(separator: "\n").filter { $0.range(of: #"^\s*(\d+[.)]|[-•*])\s"#, options: .regularExpression) != nil }
+        if !listLines.isEmpty, listLines.count < 3 { return false }
         let body = stripListMarkers(cleaned)
         let rawWords = words(raw)
         let outWords = words(body)
@@ -183,5 +195,42 @@ final class Cleaner {
             }
         }
         return row[b.count]
+    }
+}
+
+/// Tidies each piece of speech as soon as the speech engine settles it, so a long dictation
+/// is already tidy by the time the person lets go. Pieces are tidied one at a time, in order.
+@MainActor
+final class LiveTidier {
+    /// Above this many words, tidying the whole text at the end would be too slow.
+    static let longDictationWords = 60
+
+    private let cleaner: Cleaner
+    private let vocabulary: [String]
+    private var pieces: [String] = []
+    private var last: Task<Void, Never>?
+
+    init(cleaner: Cleaner, vocabulary: [String]) {
+        self.cleaner = cleaner
+        self.vocabulary = vocabulary
+    }
+
+    func add(_ piece: String) {
+        let index = pieces.count
+        pieces.append(piece)
+        let previous = last
+        last = Task { [cleaner, vocabulary] in
+            await previous?.value
+            let tidied = await cleaner.clean(piece, vocabulary: vocabulary)
+            self.pieces[index] = tidied
+        }
+    }
+
+    func finish() async -> String {
+        await last?.value
+        return pieces
+            .map { $0.trimmingCharacters(in: .whitespaces) }
+            .filter { !$0.isEmpty }
+            .joined(separator: " ")
     }
 }

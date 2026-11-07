@@ -12,6 +12,8 @@ struct SettingsView: View {
     @AppStorage(Pref.vocabulary) private var vocabulary = ""
     @AppStorage(Pref.sounds) private var sounds = false
     @AppStorage(Pref.shortcuts) private var savedShortcuts = "[]"
+    @AppStorage(Pref.learn) private var learn = true
+    @AppStorage(Pref.learned) private var learnedJSON = "[]"
     @State private var shortcuts = Shortcuts.all
 
     @State private var mic = AVCaptureDevice.authorizationStatus(for: .audio)
@@ -127,6 +129,36 @@ struct SettingsView: View {
                 Text("Voice shortcuts")
             } footer: {
                 Text("Say the phrase on the left and Murmur types the text on the right, on its own or inside a sentence. Pick phrases you wouldn't say by accident. For an address on several lines, paste it in.")
+            }
+
+            Section {
+                Toggle("Learn from my corrections", isOn: $learn)
+                if learn {
+                    let learned = Learned.all
+                    if learned.isEmpty {
+                        Text("Nothing learned yet. Fix a misheard word right after Murmur types it, and it will remember.")
+                            .foregroundStyle(.secondary)
+                    }
+                    ForEach(learned) { fix in
+                        HStack(spacing: 8) {
+                            Text(fix.heard).foregroundStyle(.secondary).strikethrough()
+                            Image(systemName: "arrow.right").foregroundStyle(.secondary)
+                            Text(fix.correct).fontWeight(.medium)
+                            Spacer()
+                            Button {
+                                Learned.save(learned.filter { $0.id != fix.id })
+                            } label: {
+                                Image(systemName: "trash")
+                            }
+                            .buttonStyle(.borderless)
+                            .help("Forget this")
+                        }
+                    }
+                }
+            } header: {
+                Text("Learned from your fixes")
+            } footer: {
+                Text("After Murmur types, it watches that text box until you move on (at most 45 seconds). If you swap a word that sounds like the one it typed, it learns the right one. It never leaves your Mac.")
             }
 
             Section {

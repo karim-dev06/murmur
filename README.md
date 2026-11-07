@@ -1,41 +1,106 @@
-<p align="center"><img src="Resources/AppIcon-1024.png" width="128" alt="Murmur icon"></p>
+<p align="center">
+  <img src="Resources/AppIcon-1024.png" width="120" alt="Murmur icon">
+</p>
 
-# Murmur
+<h1 align="center">Murmur</h1>
 
-Hold a key, talk, let go. Your words are typed wherever your cursor is.
+<p align="center">
+  <b>Hold a key. Talk. Your words appear wherever you're typing, already tidied.</b><br>
+  Free, private dictation for your Mac. A local alternative to Wispr Flow that never sends your voice anywhere.
+</p>
 
-Murmur is a dictation app for the Mac that runs entirely on your machine, using only what Apple ships with macOS. No account, no subscription, nothing else to install, no audio sent anywhere.
+<p align="center">
+  <a href="https://github.com/karim-dev06/murmur/releases/latest/download/Murmur.dmg">
+    <img src="https://img.shields.io/badge/Download_for_Mac-Free-f0581f?style=for-the-badge&logo=apple&logoColor=white" height="46" alt="Download Murmur for Mac">
+  </a>
+</p>
+
+<p align="center">
+  <sub>macOS 26 or later · Apple silicon · under 1 MB · signed and notarized by Apple</sub>
+</p>
+
+<p align="center">
+  <img src="docs/demo.gif" width="860" alt="Murmur demo: hold fn, speak, and tidy text appears in the message">
+</p>
+
+---
+
+## Why Murmur
+
+|                         | **Murmur**                  | Cloud dictation apps     |
+| ----------------------- | --------------------------- | ------------------------ |
+| Price                   | **Free**                    | Usually a subscription   |
+| Your voice              | **Stays on your Mac**       | Sent to their servers    |
+| Works offline           | **Yes**                     | No                       |
+| Account                 | **None**                    | Usually required         |
 
 ## What it does
 
-| Do this | Get this |
-|---|---|
-| Hold fn, talk, let go | Your words show live while you talk, then appear where you're typing |
-| Double-tap fn | Hands-free. Tap fn again to stop. A single tap does nothing |
-| Esc while talking | Cancel |
-| ⌥⌘V | Type the last dictation again |
-| Say "first… second… third…", "number one…" or "bullet point…" | A numbered or bulleted list |
-| Say "new line" or "new paragraph" | A line break |
-| Say a voice shortcut, like "add my office email" | Its text, set up in Settings |
-| Click the menu bar icon | Your recent dictations. Click one to copy it |
+**Words appear as you speak.** A small bar at the bottom of the screen shows what Murmur hears, live. Let go and the text lands in the app you're using about a second later.
 
-**Tidy-up.** With Apple Intelligence on, Murmur removes "um"s, repeats and self-corrections ("Tuesday, no actually Wednesday" becomes "Wednesday") and fixes punctuation. If the model rewrites, reorders or answers your words instead of tidying them, Murmur types exactly what you said.
+**Tidy text, not a transcript.** Ums, repeats and false starts are removed. Change your mind mid-sentence ("Tuesday, no actually Wednesday") and only the final version is typed. Punctuation and capitals are fixed for you.
 
-**Nothing gets lost.** Every dictation is saved before it is typed. If Murmur can't find a text field, the words stay on your clipboard. If speech recognition fails, you can retry the recording from the menu.
+**Lists on their own.** Say "first… second… third…" or "bullet point…" and you get a real numbered or bulleted list. Say "new line" or "new paragraph" for line breaks.
 
-## Requirements
+**Talks like a developer.** Over 130 built-in fixes for tech words speech recognition gets wrong, learned from recordings in Indian, American and British English: "post hog" becomes *PostHog*, "full request" becomes *pull request*, "back end to vessel" becomes *backend to Vercel*. Risky ones only apply when you're clearly talking about code, so "I play the guitar" stays as it is.
 
-- A Mac with Apple silicon, on macOS 26 or later
-- Xcode 26 or later, to build it
-- Optional: Apple Intelligence turned on, for tidy-up
+**Learns your words.** Fix a misheard name right after Murmur types it, say "Whisper Pro" to *Wispr Flow*, and Murmur gets it right from then on. It learns only sound-alike swaps, never your rewrites, and you can see and delete everything it learned in settings.
 
-No other software or models. The first launch asks macOS to fetch Apple's on-device speech model for your accent.
+**Voice shortcuts.** Say "add my work email" and your email is typed. Set up as many as you like.
+
+**Never loses a word.** Every dictation is saved before it's typed. Your last ones are one click away in the menu bar, and ⌥⌘V types the last one again.
+
+**Works everywhere you type.** Mail, Slack, Notes, your browser, your code editor. If it's a text box, Murmur can type into it.
+
+<p align="center">
+  <img src="docs/settings.png" width="460" alt="Murmur settings: voice shortcuts and words learned from your fixes">
+</p>
 
 ## Install
 
-**Download:** grab `Murmur-x.y.z.dmg` from the [latest release](https://github.com/karim-dev06/murmur/releases/latest), open it, and drag Murmur into Applications. It is signed and notarized by Apple, so it opens without warnings.
+1. **[Download Murmur](https://github.com/karim-dev06/murmur/releases/latest/download/Murmur.dmg)** and open it.
+2. Drag **Murmur** into **Applications**, then open it.
+3. The settings window shows three quick setup steps. Click **Fix** on each:
+   - **Accessibility**, so Murmur can see the talk key and type for you
+   - **Microphone**
+   - **Keyboard → "Press 🌐 key to" → Do Nothing**, so the emoji picker stays away
 
-**Or build it from source:**
+That's it. Look for the waveform in your menu bar.
+
+## Use it
+
+| Do this | Get this |
+| --- | --- |
+| Hold **fn**, talk, let go | Your words, typed and tidied |
+| Double-tap **fn** | Hands-free. Tap **fn** again to stop |
+| **Esc** while talking | Cancel |
+| **⌥⌘V** | Type the last dictation again |
+| Click the menu bar icon | Recent dictations. Click one to copy it |
+
+No fn key on your keyboard? Pick "Hold right Option" in settings.
+
+## Private by design
+
+- Speech recognition and tidy-up run on your Mac, using Apple's own on-device models.
+- No account, no tracking, nothing sent over the internet. The one exception is macOS itself, which may download Apple's speech model the first time.
+- Audio is never kept. Your dictation history stays on your Mac, and you can clear it from the menu.
+- To learn from your fixes, Murmur re-reads only the text box it just typed into, until you move on (45 seconds at most). You can turn this off in settings.
+
+## Questions
+
+**Which languages?** English, in the accent you choose in settings: US, UK, India, Australia, Canada, Ireland, New Zealand, Singapore or South Africa.
+
+**Do I need Apple Intelligence?** Only for tidy-up. Without it, Murmur types exactly what you said.
+
+**Intel Macs or older macOS?** No. Murmur needs Apple silicon and macOS 26, because that's where Apple's on-device speech and language models live.
+
+**Why does it need Accessibility?** To notice the fn key from any app and to type the text for you. The only other thing it looks at is which text box has focus, so it knows where to type.
+
+---
+
+## For developers
+
+Murmur is a small Swift app with no dependencies beyond macOS. Contributions welcome.
 
 ```bash
 git clone https://github.com/karim-dev06/murmur.git
@@ -43,55 +108,19 @@ cd murmur
 ./scripts/build.sh --install
 ```
 
-This builds the app, copies it to `/Applications` and opens it. Look for the waveform in the menu bar.
+This needs Xcode 26 or later. It builds the app, copies it to `/Applications` and opens it. Without a certificate the app is signed ad hoc, and macOS asks for permissions again after each rebuild. To avoid that, put your Apple Development certificate's name in a `.signing-identity` file.
 
-**Signing.** Without a certificate the app is signed ad hoc, and macOS asks for permissions again after every rebuild. To avoid that, put your Apple Development certificate's name or SHA-1 in a `.signing-identity` file in the project folder. `security find-identity -v -p codesigning` lists yours.
-
-## One-time setup
-
-The settings window opens on first launch and shows what is missing.
-
-1. **Accessibility:** System Settings → Privacy & Security → Accessibility → turn on Murmur. This lets it see the talk key and type for you.
-2. **Microphone:** allow it when asked.
-3. **Globe key:** System Settings → Keyboard → "Press 🌐 key to" → Do Nothing. Otherwise the emoji picker opens every time you let go of fn.
-
-No fn key on your keyboard? Pick "Hold right Option" in settings.
-
-## How it works
-
-| Step | What does it |
-|---|---|
-| Hearing you | Apple's on-device speech recognition (`SpeechAnalyzer`), live while you talk |
-| Tidy-up | Apple Intelligence's on-device model (`FoundationModels`) |
-| Typing | A paste into the focused app, then your clipboard is put back |
-
-Pick the English closest to how you speak (US, UK, India and more) under Settings → Speech.
-
-## Privacy
-
-- Audio is processed on your Mac and not kept.
-- Dictation history is stored in `~/Library/Application Support/Murmur/history.json`. Clear it from the menu bar icon → Clear history.
-- Murmur sends nothing over the internet. The one exception is macOS itself, which may download Apple's speech model the first time.
-
-## Testing without a microphone
+**Test without a microphone:**
 
 ```bash
 build.noindex/Murmur.app/Contents/MacOS/Murmur --clean "um so can we meet tuesday no actually wednesday"
 ```
 
-```bash
-build.noindex/Murmur.app/Contents/MacOS/Murmur --transcribe some-audio.wav
-```
+`--transcribe file.wav` runs a recording through speech and tidy-up. `--live file.wav` streams it as if spoken.
 
-`--live some-audio.wav` streams a file as if spoken. `--render-settings out.png` draws the settings window to an image.
+**Release:** `scripts/release.sh --publish` builds, signs with a Developer ID certificate, has Apple notarize it, and posts it here.
 
-## The icon
-
-`scripts/make-icon.swift` draws it. Run `swift scripts/make-icon.swift --preview out.png` to compare the themes, and `swift scripts/make-icon.swift tangerine` to rebuild `Resources/AppIcon.icns`.
-
-## Releasing
-
-`scripts/release.sh` builds, signs with a Developer ID certificate, has Apple notarize the app and the disk image, and with `--publish` posts it as a GitHub release. It needs a Developer ID Application certificate and notarization credentials saved with `xcrun notarytool store-credentials`.
+**Demo video:** made with [HyperFrames](https://hyperframes.heygen.com) in `demo/`. The icon is drawn by `scripts/make-icon.swift`.
 
 ## License
 

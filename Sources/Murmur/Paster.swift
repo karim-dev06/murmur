@@ -8,9 +8,13 @@ final class Paster {
 
     private static let transient = NSPasteboard.PasteboardType("org.nspasteboard.TransientType")
 
+    /// The text box the last paste went into, when it was a real text box.
+    private(set) var lastTarget: AXUIElement?
+
     func insert(_ text: String) async -> Result {
         let focused = Self.focusedElement()
         let editable = focused.map(Self.isEditable) ?? false
+        lastTarget = editable ? focused : nil
         var payload = text
         if let focused, editable, Self.needsLeadingSpace(focused, before: text) { payload = " " + text }
 
@@ -37,7 +41,16 @@ final class Paster {
 
     // MARK: - Accessibility
 
+    /// Apps built on web technology (Claude, Slack, VS Code, Discord) hide their text from
+    /// accessibility until asked. This is the standard way to ask; other apps ignore it.
+    static func exposeTextOfFrontApp() {
+        guard let app = NSWorkspace.shared.frontmostApplication else { return }
+        let element = AXUIElementCreateApplication(app.processIdentifier)
+        AXUIElementSetAttributeValue(element, "AXManualAccessibility" as CFString, kCFBooleanTrue)
+    }
+
     private static func focusedElement() -> AXUIElement? {
+        exposeTextOfFrontApp()
         let system = AXUIElementCreateSystemWide()
         AXUIElementSetMessagingTimeout(system, 0.3)
         guard let value = attribute(system, kAXFocusedUIElementAttribute),

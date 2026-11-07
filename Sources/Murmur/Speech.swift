@@ -51,8 +51,9 @@ final class AppleSpeechEngine: @unchecked Sendable {
         return out
     }
 
-    func startLive(vocabulary: [String], onText: @escaping @Sendable (String) -> Void) -> LiveTranscription {
-        LiveTranscription(locale: locale, vocabulary: vocabulary, onText: onText)
+    func startLive(vocabulary: [String], onText: @escaping @Sendable (String) -> Void,
+                   onSettled: (@Sendable (String) -> Void)? = nil) -> LiveTranscription {
+        LiveTranscription(locale: locale, vocabulary: vocabulary, onText: onText, onSettled: onSettled)
     }
 
 }
@@ -66,7 +67,9 @@ final class LiveTranscription: @unchecked Sendable {
     private let chunks: AsyncStream<[Float]>.Continuation
     private let work: Task<String, Error>
 
-    init(locale: Locale, vocabulary: [String], onText: @escaping @Sendable (String) -> Void) {
+    /// `onText` gets everything heard so far. `onSettled` gets each piece once it will no longer change.
+    init(locale: Locale, vocabulary: [String], onText: @escaping @Sendable (String) -> Void,
+         onSettled: (@Sendable (String) -> Void)? = nil) {
         // Audio arrives before the analyzer is ready. This stream holds it until then.
         let (stream, continuation) = AsyncStream<[Float]>.makeStream()
         chunks = continuation
@@ -88,7 +91,10 @@ final class LiveTranscription: @unchecked Sendable {
                 var settled = ""
                 for try await result in transcriber.results {
                     let text = String(result.text.characters)
-                    if result.isFinal { settled += text }
+                    if result.isFinal {
+                        settled += text
+                        onSettled?(text)
+                    }
                     onText(result.isFinal ? settled : settled + text)
                 }
                 return settled
@@ -154,6 +160,17 @@ enum TextFilter {
         var t = text.replacingOccurrences(of: #"\[[^\]]*\]|\((?:silence|music|blank_audio|inaudible)[^)]*\)"#, with: " ", options: [.regularExpression, .caseInsensitive])
         t = t.replacingOccurrences(of: #"\s+"#, with: " ", options: .regularExpression).trimmingCharacters(in: .whitespacesAndNewlines)
         return t
+    }
+
+    /// Fixes tech words that speech recognition often gets wrong, sentence by sentence.
+    static func fixTechWords(_ text: String) -> String {
+        guard let sentences = try? NSRegularExpression(pattern: #"[^.!?\n]+[.!?]*"#) else { return text }
+        var out = text
+        let ns = text as NSString
+        for match in sentences.matches(in: text, range: NSRange(location: 0, length: ns.length)).reversed() {
+            out = (out as NSString).replacingCharacters(in: match.range, with: TechWords.fix(sentence: ns.substring(with: match.range)))
+        }
+        return out
     }
 
     /// Lines that start "First…", "Second…", "Third…" in order become "1.", "2.", "3.".

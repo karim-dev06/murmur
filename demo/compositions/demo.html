@@ -1,0 +1,363 @@
+<template>
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+      font-family: "Inter";
+      color: #1d1d1f;
+    }
+    #demo-ground {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(1200px 700px at 78% 105%, rgba(240, 88, 31, 0.16), transparent 60%),
+        linear-gradient(180deg, #f6f2ec 0%, #ece6dd 100%);
+    }
+
+    /* The app you are typing in: a plain message window. */
+    #demo-window {
+      position: absolute;
+      left: 280px;
+      top: 110px;
+      width: 1360px;
+      height: 560px;
+    }
+    #demo-window-card {
+      position: absolute;
+      inset: 0;
+      background: #ffffff;
+      border-radius: 28px;
+      box-shadow: 0 40px 90px rgba(60, 40, 20, 0.18), 0 2px 0 rgba(0, 0, 0, 0.04);
+      overflow: hidden;
+    }
+    #demo-titlebar {
+      height: 76px;
+      display: flex;
+      align-items: center;
+      padding: 0 30px;
+      gap: 14px;
+      border-bottom: 1px solid #ececec;
+    }
+    .demo-light {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+    }
+    #demo-title {
+      flex: 1;
+      text-align: center;
+      font-size: 28px;
+      font-weight: 600;
+      color: #6e6e73;
+      margin-right: 100px;
+    }
+    #demo-to {
+      padding: 26px 48px;
+      font-size: 30px;
+      color: #8e8e93;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    #demo-to b {
+      color: #1d1d1f;
+      font-weight: 500;
+    }
+    #demo-body {
+      position: absolute;
+      left: 48px;
+      right: 48px;
+      top: 200px;
+      font-size: 44px;
+      line-height: 1.35;
+      font-weight: 450;
+    }
+    .demo-caret {
+      display: inline-block;
+      width: 4px;
+      height: 52px;
+      background: #0a84ff;
+      vertical-align: -10px;
+      margin-left: 4px;
+    }
+    #demo-caret-start {
+      position: absolute;
+      left: 48px;
+      top: 208px;
+    }
+    #demo-hl-wed,
+    #demo-hl-readme {
+      background: linear-gradient(transparent 62%, rgba(240, 88, 31, 0.28) 62%);
+      background-size: 0% 100%;
+      background-repeat: no-repeat;
+    }
+
+    /* What Murmur fixed. */
+    #demo-chips {
+      position: absolute;
+      left: 48px;
+      bottom: 40px;
+      display: flex;
+      gap: 16px;
+    }
+    .demo-chip {
+      font-size: 28px;
+      font-weight: 500;
+      padding: 12px 22px;
+      border-radius: 999px;
+      background: #fff1ea;
+      color: #b5410f;
+      opacity: 0;
+    }
+
+    /* The fn key and its caption. */
+    #demo-key-wrap {
+      position: absolute;
+      right: 150px;
+      bottom: 90px;
+      width: 330px;
+      height: 260px;
+    }
+    #demo-key {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      width: 150px;
+      height: 150px;
+      border-radius: 26px;
+      background: linear-gradient(180deg, #ffffff, #f1efec);
+      box-shadow: 0 10px 0 #d6d0c8, 0 18px 30px rgba(60, 40, 20, 0.18);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 18px 20px;
+      font-size: 34px;
+      font-weight: 600;
+      color: #3a3a3c;
+    }
+    #demo-key svg {
+      align-self: flex-start;
+    }
+    .demo-caption {
+      position: absolute;
+      right: 0;
+      top: 0;
+      font-size: 40px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      white-space: nowrap;
+      text-align: right;
+    }
+
+    /* Murmur's pill: the real one, at twice its size. */
+    .demo-pill {
+      position: absolute;
+      left: 50%;
+      bottom: 70px;
+      transform: translateX(-50%);
+    }
+    .demo-pill-body {
+      background: rgba(0, 0, 0, 0.86);
+      border: 2px solid rgba(255, 255, 255, 0.14);
+      border-radius: 36px;
+      color: #fff;
+      padding: 0 28px;
+    }
+    #demo-pill-small .demo-pill-body {
+      height: 72px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    #demo-pill-big .demo-pill-body {
+      width: 1000px;
+      padding: 22px 28px 0;
+    }
+    #demo-live {
+      font-size: 30px;
+      line-height: 1.4;
+      min-height: 84px;
+    }
+    #demo-live span {
+      opacity: 0;
+    }
+    .demo-status {
+      height: 72px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      font-size: 28px;
+      font-weight: 500;
+    }
+    .demo-dot {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #ff3b30;
+    }
+    .demo-bars {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      height: 40px;
+    }
+    .demo-bars i {
+      display: block;
+      width: 6px;
+      height: 40px;
+      border-radius: 3px;
+      background: #fff;
+      transform-origin: 50% 50%;
+    }
+    #demo-status-work {
+      position: absolute;
+      left: 28px;
+      bottom: 0;
+      opacity: 0;
+    }
+    #demo-spinner {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: 4px solid rgba(255, 255, 255, 0.25);
+      border-top-color: #fff;
+    }
+  </style>
+
+  <div id="root" data-composition-id="demo" data-width="1920" data-height="1080">
+    <div id="demo-ground"></div>
+
+    <div id="demo-window" class="clip" data-start="0" data-duration="14">
+      <div id="demo-window-card">
+        <div id="demo-titlebar">
+          <div class="demo-light" style="background: #ff5f57"></div>
+          <div class="demo-light" style="background: #febc2e"></div>
+          <div class="demo-light" style="background: #28c840"></div>
+          <div id="demo-title">New Message</div>
+        </div>
+        <div id="demo-to">To: <b>Priya</b></div>
+
+        <div id="demo-caret-start" class="clip" data-start="0" data-duration="9.8">
+          <span id="demo-caret1" class="demo-caret"></span>
+        </div>
+
+        <div id="demo-body" class="clip" data-start="9.8" data-duration="4.2">
+          <span id="demo-typed">Can we push the launch to <span id="demo-hl-wed">Wednesday</span> and update the
+            <span id="demo-hl-readme">README</span> file?</span><span id="demo-caret2" class="demo-caret"></span>
+        </div>
+
+        <div id="demo-chips" class="clip" data-start="10.4" data-duration="3.6">
+          <div id="demo-chip1" class="demo-chip">“Um, so” removed</div>
+          <div id="demo-chip2" class="demo-chip">Tuesday → Wednesday</div>
+          <div id="demo-chip3" class="demo-chip">read me → README</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="demo-key-wrap" class="clip" data-start="0.5" data-duration="9.4">
+      <div id="demo-caption1" class="demo-caption">Hold <span style="color: #c9440f">fn</span> and talk</div>
+      <div id="demo-caption2" class="demo-caption" style="opacity: 0">Let go</div>
+      <div id="demo-key">
+        <span>fn</span>
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#3a3a3c" stroke-width="1.8">
+          <circle cx="12" cy="12" r="9" />
+          <path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z" />
+        </svg>
+      </div>
+    </div>
+
+    <div id="demo-pill-small" class="demo-pill clip" data-start="1.5" data-duration="0.7">
+      <div id="demo-pill-small-in" class="demo-pill-body">
+        <div class="demo-dot"></div>
+        <div id="demo-bars-small" class="demo-bars">
+          <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+        </div>
+      </div>
+    </div>
+
+    <div id="demo-pill-big" class="demo-pill clip" data-start="2.1" data-duration="7.7">
+      <div id="demo-pill-big-in" class="demo-pill-body" style="position: relative">
+        <div id="demo-live"><span id="dw0">Um,</span> <span id="dw1">so</span> <span id="dw2">can</span> <span id="dw3">we</span>
+          <span id="dw4">push</span> <span id="dw5">the</span> <span id="dw6">launch</span> <span id="dw7">to</span>
+          <span id="dw8">Tuesday?</span> <span id="dw9">No,</span> <span id="dw10">actually</span>
+          <span id="dw11">Wednesday,</span> <span id="dw12">and</span> <span id="dw13">update</span>
+          <span id="dw14">the</span> <span id="dw15">read</span> <span id="dw16">me</span> <span id="dw17">file.</span></div>
+        <div id="demo-status-listen" class="demo-status">
+          <div class="demo-dot"></div>
+          <div id="demo-bars-big" class="demo-bars">
+            <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+          </div>
+        </div>
+        <div id="demo-status-work" class="demo-status">
+          <div id="demo-spinner"></div>
+          <span>Writing…</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const tl = gsap.timeline({ paused: true });
+
+    // Seeded random, so every render is identical.
+    let seed = 7;
+    const rand = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+
+    // Window arrives.
+
+    // Caret blinks until the text lands.
+    tl.fromTo("#demo-caret1", { opacity: 1 }, { opacity: 0, duration: 0.45, ease: "steps(1)", repeat: 19, yoyo: true }, 0.4);
+
+    // Caption and key.
+    tl.fromTo("#demo-caption1", { opacity: 0, filter: "blur(8px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power4.out" }, 0.6);
+    tl.fromTo("#demo-key", { y: 0, boxShadow: "0 10px 0 #d6d0c8, 0 18px 30px rgba(60,40,20,0.18)" },
+      { y: 8, boxShadow: "0 2px 0 #d6d0c8, 0 6px 12px rgba(60,40,20,0.14)", background: "linear-gradient(180deg,#f3efe9,#e7e2db)", duration: 0.12, ease: "power2.out" }, 1.2);
+
+    // Murmur shows up once the press is clearly a hold.
+    tl.fromTo("#demo-pill-small-in", { opacity: 0, y: 24, scale: 0.9 }, { opacity: 1, y: 0, scale: 1, duration: 0.35, ease: "expo.out" }, 1.5);
+    tl.fromTo("#demo-pill-big-in", { opacity: 0, scaleY: 0.55, scaleX: 0.5, filter: "blur(10px)" },
+      { opacity: 1, scaleY: 1, scaleX: 1, filter: "blur(0px)", duration: 0.25, ease: "power3.out", transformOrigin: "50% 100%" }, 2.1);
+
+    // Level bars move with the voice.
+    function bars(selector, start, end) {
+      document.querySelectorAll(selector + " i").forEach((bar) => {
+        const frames = [];
+        for (let t = start; t < end; t += 0.1) frames.push({ scaleY: 0.12 + rand() * 0.88, duration: 0.1, ease: "none" });
+        frames.push({ scaleY: 0.12, duration: 0.15 });
+        tl.fromTo(bar, { scaleY: 0.12 }, { keyframes: frames }, start);
+      });
+    }
+    bars("#demo-bars-small", 1.6, 2.2);
+    bars("#demo-bars-big", 2.1, 8.8);
+
+    // Words appear as they are spoken, a little behind the voice.
+    const wordTimes = [2.3, 2.6, 2.95, 3.2, 3.45, 3.75, 3.95, 4.3, 4.55, 5.25, 5.55, 6.0, 6.55, 6.8, 7.15, 7.4, 7.6, 7.85];
+    wordTimes.forEach((t, i) => {
+      tl.fromTo("#dw" + i, { opacity: 0, filter: "blur(6px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.13, ease: "power2.out" }, t);
+    });
+
+    // Let go.
+    tl.to("#demo-key", { y: 0, boxShadow: "0 10px 0 #d6d0c8, 0 18px 30px rgba(60,40,20,0.18)", background: "linear-gradient(180deg,#ffffff,#f1efec)", duration: 0.12, ease: "power2.out" }, 8.75);
+    tl.to("#demo-caption1", { opacity: 0, filter: "blur(8px)", duration: 0.15 }, 8.75);
+    tl.fromTo("#demo-caption2", { opacity: 0, filter: "blur(8px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power4.out" }, 8.85);
+    tl.to("#demo-status-listen", { opacity: 0, duration: 0.15 }, 8.85);
+    tl.fromTo("#demo-status-work", { opacity: 0 }, { opacity: 1, duration: 0.15 }, 8.9);
+    tl.to("#demo-live", { opacity: 0.55, duration: 0.2 }, 8.9);
+    tl.fromTo("#demo-spinner", { rotation: 0 }, { rotation: 360 * 2, duration: 0.9, ease: "none" }, 8.9);
+
+    // Typed for you, already tidy.
+    tl.to("#demo-pill-big-in", { opacity: 0, y: 30, filter: "blur(6px)", duration: 0.2, ease: "power3.in" }, 9.55);
+    tl.to("#demo-key", { opacity: 0, duration: 0.2 }, 9.55);
+    tl.to("#demo-caption2", { opacity: 0, duration: 0.2 }, 9.55);
+    tl.fromTo("#demo-typed", { opacity: 0 }, { opacity: 1, duration: 0.08, ease: "none" }, 9.8);
+    tl.fromTo("#demo-caret2", { opacity: 1 }, { opacity: 0, duration: 0.45, ease: "steps(1)", repeat: 8, yoyo: true }, 10.2);
+    tl.fromTo("#demo-hl-wed", { backgroundSize: "0% 100%" }, { backgroundSize: "100% 100%", duration: 0.35, ease: "power2.out" }, 10.5);
+    tl.fromTo("#demo-hl-readme", { backgroundSize: "0% 100%" }, { backgroundSize: "100% 100%", duration: 0.35, ease: "power2.out" }, 10.8);
+    ["#demo-chip1", "#demo-chip2", "#demo-chip3"].forEach((chip, i) => {
+      tl.fromTo(chip, { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.35, ease: "expo.out" }, 10.45 + i * 0.3);
+    });
+
+    // Hand over to the end card.
+    tl.to("#demo-window-card", { opacity: 0, scale: 0.94, filter: "blur(10px)", duration: 0.3, ease: "power3.in" }, 13.65);
+
+    window.__timelines["demo"] = tl;
+  </script>
+</template>
