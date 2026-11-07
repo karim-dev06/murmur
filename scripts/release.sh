@@ -70,6 +70,8 @@ echo "Ready: $DMG"
 
 # 5. Optional: publish as a GitHub release.
 if [[ "$MODE" == "--publish" ]]; then
-    gh release create "v$VERSION" "$DMG" --repo "$RELEASE_REPO" --title "Murmur $VERSION" \
-        --notes "Download Murmur-$VERSION.dmg, open it, and drag Murmur to Applications. Needs a Mac with Apple silicon on macOS 26 or later."
+    # A copy with a fixed name, so the README's Download button always gets the newest version.
+    cp "$DMG" "$DIST/Murmur.dmg"
+    NOTES="${MURMUR_RELEASE_NOTES:-Download Murmur.dmg, open it, and drag Murmur to Applications. Needs a Mac with Apple silicon on macOS 26 or later.}"
+    gh release create "v$VERSION" "$DMG" "$DIST/Murmur.dmg" --repo "$RELEASE_REPO" --title "Murmur $VERSION" --notes "$NOTES"
 fi
