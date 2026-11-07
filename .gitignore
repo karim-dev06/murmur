@@ -1,0 +1,6 @@
+.build/
+build.noindex/
+.DS_Store
+.swiftpm/
+.signing-identity
+dist/
